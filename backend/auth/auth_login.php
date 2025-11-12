@@ -1,44 +1,40 @@
 <?php
-session_start();
-include '../config/database.php'; // path sudah benar dari folder auth ke config
+if (session_status()===PHP_SESSION_NONE) session_start();
+require_once __DIR__.'/../config/database.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+// cegah output nyasar
+ob_start();
 
-    // Cek email di database
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
-    if ($stmt) {
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
+$email = trim($_POST['email'] ?? '');
+$pass  = $_POST['password'] ?? '';
 
-        // Jika email ditemukan
-        if ($result->num_rows > 0) {
-            $data = $result->fetch_assoc();
+$stmt = $conn->prepare("SELECT id,nama,email,password_hash,role,foto_profile FROM users WHERE email=? LIMIT 1");
+$stmt->bind_param("s", $email);
+$stmt->execute();
+$res = $stmt->get_result();
+$user = $res->fetch_assoc();
 
-            // Cocokkan password (karena disimpan dalam kolom password_hash)
-            if (password_verify($password, $data['password_hash'])) {
-                // Simpan data ke session
-                $_SESSION['user_id'] = $data['id'];
-                $_SESSION['user_name'] = $data['name'];
-                $_SESSION['user_role'] = $data['role'];
-
-                // Arahkan ke dashboard sesuai role
-                if ($data['role'] == 'admin') {
-                    header("Location: ../../frontend/admin/dashboard_admin.php");
-                } else {
-                    header("Location: ../../frontend/user/dashboard_user.php");
-                }
-                exit;
-            } else {
-                echo "<script>alert('Password salah!'); window.history.back();</script>";
-            }
-        } else {
-            echo "<script>alert('Email tidak ditemukan!'); window.history.back();</script>";
-        }
-    } else {
-        echo "<script>alert('Query gagal diproses!');</script>";
-    }
+if (!$user || !password_verify($pass, $user['password_hash'])) {
+    // simpan flash message lalu balik ke login
+    $_SESSION['flash'] = "Email atau password salah.";
+    header("Location: /jemuran_auto/frontend/auth/login.php");
+    exit;
 }
-?>
+
+// set session user
+$_SESSION['user'] = [
+  'id'   => (int)$user['id'],
+  'nama' => $user['nama'],
+  'email'=> $user['email'],
+  'role' => $user['role'],
+  'foto' => $user['foto_profile'] ?? null
+];
+
+// redirect sesuai role
+if ($user['role'] === 'admin') {
+    header("Location: /jemuran_auto/frontend/admin/dashboard_admin.php");
+} else {
+    header("Location: /jemuran_auto/frontend/user/dashboard_user.php");
+}
+exit;
+f3
