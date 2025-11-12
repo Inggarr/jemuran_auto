@@ -8,13 +8,18 @@ ob_start();
 $email = trim($_POST['email'] ?? '');
 $pass  = $_POST['password'] ?? '';
 
-$stmt = $conn->prepare("SELECT id,nama,email,password_hash,role,foto_profile FROM users WHERE email=? LIMIT 1");
+$stmt = $conn->prepare("SELECT id,nama,email,password,role,foto_profile FROM users WHERE email=? LIMIT 1");
+
+if (!$stmt) {
+    die("Query prepare gagal: " . $conn->error);
+}
+
 $stmt->bind_param("s", $email);
 $stmt->execute();
 $res = $stmt->get_result();
 $user = $res->fetch_assoc();
 
-if (!$user || !password_verify($pass, $user['password_hash'])) {
+if (!$user || !password_verify($pass, $user['password'])) {
     // simpan flash message lalu balik ke login
     $_SESSION['flash'] = "Email atau password salah.";
     header("Location: /jemuran_auto/frontend/auth/login.php");
@@ -37,4 +42,3 @@ if ($user['role'] === 'admin') {
     header("Location: /jemuran_auto/frontend/user/dashboard_user.php");
 }
 exit;
-f3
