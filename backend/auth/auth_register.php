@@ -1,52 +1,58 @@
 <?php
-session_start();
-require_once __DIR__ . '/../config/database.php';
-header('Content-Type: application/json');
+include_once '../config/database.php'; // panggil koneksi database
 
-$payload = json_decode(file_get_contents("php://input"), true);
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+  // Ambil input dari form
+  $nama = trim($_POST['nama']);
+  $email = trim($_POST['email']);
+  $password = $_POST['password'];
+  $confirm = $_POST['confirm_password'];
 
-if ($payload) {
-  $nama     = trim($payload['nama'] ?? '');
-  $email    = trim($payload['email'] ?? '');
-  $password = (string)($payload['password'] ?? '');
-} else {
-  $nama     = trim($_POST['nama'] ?? '');
-  $email    = trim($_POST['email'] ?? '');
-  $password = (string)($_POST['password'] ?? '');
-}
+  // Validasi sederhana
+  if (empty($nama) || empty($email) || empty($password) || empty($confirm)) {
+    die("Semua field harus diisi!");
+  }
 
-if ($nama === '' || $email === '' || $password === '') {
-  echo json_encode(["status"=>"error","message"=>"Data tidak lengkap"]);
-  exit;
-}
+  if ($password !== $confirm) {
+    die("Password dan konfirmasi tidak cocok!");
+  }
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-  echo json_encode(["status"=>"error","message"=>"Format email tidak valid"]);
-  exit;
-}
+  // 🔍 Cek apakah email sudah terdaftar
+  $cek = $conn->prepare("SELECT id FROM users WHERE email = ?");
+  if (!$cek) {
+    die("Query prepare gagal: " . $conn->error);
+  }
 
-$role = 'user';
-$foto_default = 'assets/uploads/profile/default.png';
+  $cek->bind_param("s", $email);
+  $cek->execute();
+  $result = $cek->get_result();
 
-$cek = $conn->prepare("SELECT 1 FROM users WHERE email = ? LIMIT 1");
-$cek->bind_param("s", $email);
-$cek->execute();
-$cek->store_result();
-if ($cek->num_rows > 0) {
-  echo json_encode(["status"=>"error","message"=>"Akun sudah terdaftar"]);
+  if ($result && $result->num_rows > 0) {
+    die("Email sudah terdaftar!");
+  }
   $cek->close();
-  exit;
+
+  // 🔑 Hash password
+  $password_hash = password_hash($password, PASSWORD_DEFAULT);
+
+  // 🔹 Masukkan data ke tabel users
+  $insert = $conn->prepare("INSERT INTO users (nama, email, password_hash, role, foto_profile) VALUES (?, ?, ?, 'user', NULL)");
+  if (!$insert) {
+    die("Query prepare gagal (insert): " . $conn->error);
+  }
+
+  $insert->bind_param("sss", $nama, $email, $password_hash);
+
+  if ($insert->execute()) {
+    echo "Registrasi berhasil!";
+    header("Location: ../../frontend/auth/login.php");
+    exit;
+  } else {
+    die("Gagal registrasi: " . $insert->error);
+  }
+
+  $insert->close();
 }
-$cek->close();
 
-$stmt = $conn->prepare("INSERT INTO users (nama, email, password_hash, role, foto_profile) VALUES (?, ?, ?, ?, ?)");
-$stmt->bind_param("sssss", $nama, $email, $password, $role, $foto_default);
-
-if ($stmt->execute()) {
-  echo json_encode(["status"=>"success","message"=>"Pendaftaran berhasil"]);
-} else {
-  echo json_encode(["status"=>"error","message"=>"Gagal mendaftar: ".$conn->error]);
-}
-
-$stmt->close();
 $conn->close();
+?>
