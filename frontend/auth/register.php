@@ -17,7 +17,7 @@
     }
 
     body {
-      background: url('Bg.png') no-repeat center center fixed;
+      background: url("../../assets/Bg.png") center/cover no-repeat fixed;
       background-size: cover;
       min-height: 100vh;
       display: flex;
