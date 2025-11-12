@@ -17,7 +17,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      background: url("Bg.png") no-repeat center center fixed;
+      background: url("../../assets/Bg.png") center/cover no-repeat fixed;
       background-size: cover;
     }
 
