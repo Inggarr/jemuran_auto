@@ -131,7 +131,7 @@
       </div>
       <button type="submit">Daftar</button>
     </form>
-    <p>Sudah punya akun? <a href="login.php">Masuk di sini</a></p>
+    <p>Already have an account? <a href="login.php">Sign in</a></p>
   </div>
 </body>
 </html>
