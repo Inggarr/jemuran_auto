@@ -86,8 +86,11 @@ require_once __DIR__ . '/../includes/sidebar.php';
 <style>
   .sc-home{ padding:28px; }
   .hero{
-    background:#fff; border:1px solid #efeaff; border-radius:20px;
-    padding:36px 28px; box-shadow:0 4px 24px rgba(66,26,107,0.06);
+    background: transparent; /* tidak ada kotak */
+    border: none;            /* hilangkan garis */
+    border-radius: 0;        /* tidak bulat */
+    padding: 20px 0;         /* padding simple */
+    box-shadow: none;        /* hilangkan bayangan */
   }
   .title-row{
     display:flex; align-items:center; gap:18px; flex-wrap:wrap; justify-content:center;
@@ -141,9 +144,25 @@ require_once __DIR__ . '/../includes/sidebar.php';
   @media (max-width:900px){
     .sc-home{ padding:18px; }
   }
+
+
+  /* =============================== */
+  /* >>>>>   Tambahan agar ke tengah   <<<<< */
+  /* =============================== */
+
+  #content-wrapper {
+    margin-left: 450px !important;
+    padding: 30px;
+    transition: margin-left .3s ease;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* supaya konten benar² center */
+}
+
 </style>
 
-<main id="content" class="sc-home">
+<div class="sc-home">
 
   <!-- hero status sesuai desain -->
   <section class="hero">
@@ -191,6 +210,6 @@ require_once __DIR__ . '/../includes/sidebar.php';
       </div>
     <?php endif; ?>
   </section>
-</main>
+</div>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
