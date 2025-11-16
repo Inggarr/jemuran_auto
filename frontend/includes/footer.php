@@ -1,18 +1,12 @@
-  </div> <!-- Tutup layout flex -->
-  <footer style="border-top:1px solid #ddd;text-align:center;padding:12px;font-family:Arial,Helvetica,sans-serif;color:#666;">
-    © <?= date('Y'); ?> Jemuran Auto
-  </footer>
-</body>
-</html>
 <!-- ====== FOOTER Smart Clothesline ====== -->
 <footer style="
-  background:#66b8ff;
-  color:#fff;
+  background:#EBE8F9;       /* sama seperti sidebar */
+  color:#000000;            /* teks hitam */
   display:flex;
   justify-content:space-between;
   align-items:flex-start;
   flex-wrap:wrap;
-  padding:35px 230px;
+  padding:35px 235px;
   font-family:Inter, Arial, sans-serif;
   font-size:14px;
   line-height:1.6;
@@ -20,21 +14,21 @@
 
   <!-- Kolom Kiri: Logo -->
   <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:250px;">
-    <img src="<?= $BASE ?>assets/logo.png" alt="Smart Clothesline Logo" style="height:125px;width:auto;">
+    <img src="<?= $BASE ?>assets/LOGO BARU.png" alt="Smart Clothesline Logo" style="height:125px;width:auto;">
   </div>
 
   <!-- Kolom Tengah: Deskripsi -->
   <div style="flex:2;min-width:250px;">
-    <strong style="font-size:15px;">Smart Clothesline</strong><br>
+    <strong style="font-size:15px;color:#000;">Smart Clothesline</strong><br>
     Solusi jemuran otomatis yang cerdas.<br>
     © 2025 Smart Clothesline. All rights reserved.
   </div>
 
   <!-- Garis Pemisah (vertikal) -->
-  <div style="width:1px;background:rgba(255,255,255,0.6);height:60px;margin:0 30px;"></div>
+  <div style="width:1px;background:#00000040;height:60px;margin:0 30px;"></div>
 
   <!-- Kolom Kanan: Kontak -->
-  <div style="flex:1;min-width:230px;">
+  <div style="flex:1;min-width:230px;color:#000;">
     📧 smartclothesline@gmail.com<br>
     📍 Jakarta, Indonesia<br>
     🌐 www.smartclothesline.com<br>
