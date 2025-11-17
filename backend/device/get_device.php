@@ -1,27 +1,31 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/../config/database.php';
-header('Content-Type: application/json');
 
-$user_id = $_SESSION['user']['id'] ?? null;
-if (!$user_id) {
-  echo json_encode(["status" => "error", "message" => "Unauthorized"]);
+if (!isset($_SESSION['user'])) {
+  echo "unauthorized";
   exit;
 }
 
-$query = $conn->prepare("SELECT nama_device, status, created_at FROM devices WHERE user_id = ? LIMIT 1");
-$query->bind_param("i", $user_id);
-$query->execute();
-$res = $query->get_result();
+$userId = (int)$_SESSION['user']['id'];
+$deviceId = isset($_GET['device_id']) ? (int)$_GET['device_id'] : 0;
 
-if ($res && $res->num_rows > 0) {
-  $device = $res->fetch_assoc();
-  echo json_encode([
-    "status" => "success",
-    "device" => $device
-  ]);
-} else {
-  echo json_encode(["status" => "error", "message" => "Device tidak ditemukan"]);
+if ($deviceId <= 0) {
+  echo "invalid";
+  exit;
 }
 
+$stmt = $conn->prepare("SELECT status FROM devices WHERE id=? AND user_id=? LIMIT 1");
+$stmt->bind_param("ii", $deviceId, $userId);
+$stmt->execute();
+$res = $stmt->get_result();
+
+if ($row = $res->fetch_assoc()) {
+  echo $row['status']; // cuma open / close
+} else {
+  echo "notfound";
+}
+
+$stmt->close();
 $conn->close();
+?>
