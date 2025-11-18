@@ -86,10 +86,16 @@ require_once __DIR__ . '/../includes/sidebar.php';
   }
 
   .wx-img {
-    width: clamp(180px, 16vw, 230px);
-    height: auto;
-    transition: transform .4s ease, opacity .4s ease;
-  }
+  width: clamp(180px, 16vw, 230px);
+  height: auto;
+  transition: transform .4s ease, opacity .4s ease;
+}
+
+/* hanya untuk icon matahari penuh (weather_sun.png) */
+.wx-img[src*="weather_sun.png"] {
+  transform: scale(3.5);  /* ubah nilai ini buat atur besar kecilnya */
+  transform-origin: center center;
+}
 
   .cta-row {
     display: flex;
@@ -212,13 +218,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // fungsi update tampilan utama
   function updateView(status) {
-    const isOpen = status === "open";
-    title.textContent = isOpen ? "Terbuka" : "Tertutup";
-    icon.src = isOpen 
-      ? "<?= $BASE ?>assets/weather_sun.png"
-      : "<?= $BASE ?>assets/weather_rain_sun.png";
-    tempValue.textContent = isOpen ? "33°C" : "27°C";
-  }
+  const isOpen = status === "open";
+  title.textContent = isOpen ? "Terbuka" : "Tertutup";
+  icon.src = isOpen 
+    ? "<?= $BASE ?>assets/weather_sun.png"
+    : "<?= $BASE ?>assets/weather_rain_sun.png";
+  tempValue.textContent = isOpen ? "33°C" : "27°C";
+
+  // tambahkan class beda untuk matahari murni
+  icon.classList.toggle("sun-only", isOpen);
+  icon.classList.toggle("rainy", !isOpen);
+}
+
 
   // fungsi indikator realtime
   function showCheckingStatus(isChecking) {
