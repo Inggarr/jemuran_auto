@@ -390,6 +390,7 @@ form {
 
 <!-- ===== MAIN CONTENT ===== -->
 <main>
+
   <div class="notif" onclick="window.location.href='notif.php'">
     <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M14 18c0 1.1-.9 2-2 2s-2-.9-2-2"/>
@@ -398,7 +399,11 @@ form {
   </div>
 
   <div class="profile-pic">
-    <img src="/jemuran_auto/assets/user_default.jpg" id="previewFoto" alt="Foto Profil">
+    <?php 
+$fotoUser = $_SESSION['user']['foto_profile'] ?? 'user_default.jpg';
+$fotoPath = "/jemuran_auto/assets/uploads/profile/" . $fotoUser;
+?>
+<img src="<?= $fotoPath ?>?v=<?= time(); ?>" id="previewFoto">
     <label for="fotoUpload" class="edit-icon">✏️</label>
     <input type="file" id="fotoUpload" accept="image/*" style="display:none;">
   </div>
@@ -452,13 +457,81 @@ fotoInput.addEventListener('change',(e)=>{
 const editBtn=document.getElementById('editBtn');
 const inputs=document.querySelectorAll('#profileForm input');
 let editable=false;
-editBtn.addEventListener('click',()=>{
-  editable=!editable;
-  inputs.forEach(i=>{
-    if(i.id!=='role') i.readOnly=!editable;
+editBtn.addEventListener('click', () => {
+  editable = !editable;
+  inputs.forEach(i => {
+    if (i.id !== 'role') i.readOnly = !editable;
   });
-  editBtn.textContent=editable?'Simpan':'Edit';
+
+  if (!editable) {
+      // Ketika tombol berubah dari 'Simpan' → 'Edit'
+      submitProfil();
+  }
+
+  editBtn.textContent = editable ? 'Simpan' : 'Edit';
 });
+
+
+function submitProfil() {
+  const fd = new FormData();
+  fd.append("nama", document.getElementById("nama").value);
+  fd.append("email", document.getElementById("email").value);
+
+  const foto = document.getElementById("fotoUpload").files[0];
+  if (foto) fd.append("foto", foto);
+
+  fetch("/jemuran_auto/backend/profile/profile_update.php", {
+    method: "POST",
+    body: fd
+  })
+  .then(r => r.json())
+  .then(d => {
+    alert(d.msg);
+    
+    if (d.status) {
+    // Update UI langsung tanpa reload
+    document.getElementById("nama").value = fd.get("nama");
+    document.getElementById("email").value = fd.get("email");
+
+    if (d.foto) {
+        preview.src = "/jemuran_auto/assets/uploads/profile/" + d.foto + "?v=" + Date.now();
+    }
+
+    // Matikan mode edit
+    editable = false;
+    editBtn.textContent = "Edit";
+    inputs.forEach(i => { if (i.id !== 'role') i.readOnly = true; });
+
+    alert("Profil berhasil diperbarui!");
+}
+
+  });
+}
+
+function updateEmail() {
+  fetch("/jemuran_auto/backend/profile/update_email.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      email: document.getElementById("email").value
+    })
+  })
+  .then(r => r.json())
+  .then(d => alert(d.msg));
+}
+
+function updatePassword() {
+  fetch("/jemuran_auto/backend/profile/update_password.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      password_lama: document.getElementById("password").value,
+      password_baru: prompt("Masukkan password baru:")
+    })
+  })
+  .then(r => r.json())
+  .then(d => alert(d.msg));
+}
 </script>
 </body>
 </html>
